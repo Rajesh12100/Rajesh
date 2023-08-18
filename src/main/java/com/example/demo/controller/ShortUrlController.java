@@ -7,28 +7,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class UrlShortenerController {
-    private Map<String, UrlEntry> shortToLongMap = new HashMap<>();
+public class ShortUrlController {
+    private Map<String, url> map = new HashMap<>();
 
     @GetMapping("/")
     public String index() {
         return "index";
     }
 
-    @PostMapping("/shorten")
+    @PostMapping("/new-url")
     public String shortenUrl(@RequestParam String longUrl, Model model) {
         String shortUrl = generateShortUrl();
-        shortToLongMap.put(shortUrl, new UrlEntry(longUrl));
+        map.put(shortUrl, new url(longUrl));
         model.addAttribute("shortUrl", shortUrl);
         return "index";
     }
 
     @GetMapping("/{shortUrl}")
     public String redirectToLongUrl(@PathVariable String shortUrl, Model model) {
-        if (shortToLongMap.containsKey(shortUrl)) {
-            UrlEntry urlEntry = shortToLongMap.get(shortUrl);
-            if (urlEntry.isValid()) {
-                return "redirect:" + urlEntry.getLongUrl();
+        if (map.containsKey(shortUrl)) {
+            url url = map.get(shortUrl);
+            if (url.isValid()) {
+                return "redirect:" + url.getLongUrl();
             } else {
                 model.addAttribute("message", "URL has expired.");
                 return "error";
@@ -46,11 +46,11 @@ public class UrlShortenerController {
         return "3xerdsfs"; // Replace with actual short URL
     }
 
-    private class UrlEntry {
+    private class url {
         private String longUrl;
         private long creationTime;
 
-        public UrlEntry(String longUrl) {
+        public url(String longUrl) {
             this.longUrl = longUrl;
             this.creationTime = System.currentTimeMillis();
         }
